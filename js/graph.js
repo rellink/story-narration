@@ -17,6 +17,15 @@ var Graph = function() {
 
 // github.com/Adebis/NarrativeBackendRPI
 
+Graph.prototype.load = function(url, type) {
+  console.log(url, type);
+  switch(type) {
+    case 'json': return this.loadJSON(url);
+    case 'aimind': return this.loadAIMind(url);
+    default: return this.loadJSON(url);
+  }
+}
+
 Graph.prototype.loadJSON = function(url) {
   return $.getJSON(url, {}, this.importJSON.bind(this));
 }
@@ -142,7 +151,7 @@ function bindEvents(s) {
       }
     });
 
-    s.refresh();
+    refresh();
   }
 
   function deactivateNodes() {
@@ -154,7 +163,7 @@ function bindEvents(s) {
       e.hidden = true;
     });
 
-    s.refresh();
+    refresh();
   }
 
   s.bind('clickNode', function(e) {
@@ -186,8 +195,21 @@ function bindEvents(s) {
   s.bind('outNode', function(e) {
     if(s.activeNode) return;
 
+    // Handle when graph are being rendered
+    if(rendering) return;
+
     deactivateNodes();
   });
+
+  function refresh() {
+    rendering = true;
+    s.refresh();
+  }
+
+  var rendering = false;
+  s.renderers[0].bind('render', function(e) {
+    rendering = false;
+  })
 }
 
 function normalizeWeight(weight) {

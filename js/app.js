@@ -4,14 +4,15 @@ App.start = function() {
 
 };
 
-App.selectTopic = function() {
+App.selectTopic = function(url, type) {
   App.hideGetStarted();
   App.showLoading();
 
   App.graph = new Graph();
   App.graph
+    .load(url, type)
     //.loadJSON(Config.KNOWLEDGE_API + '/graph?anchors=Google,Microsoft,Samsung,Amazon,IBM,Foxconn,Dell_Technologies,Alphabet_Inc.,HP_Inc.,Sony,Intel')
-    .loadAIMind(Config.TEST_XML)
+    //.loadAIMind(Config.TEST_XML)
     .done(function(){
       App.graph.render();
       App.graph.forceLayout(function() {

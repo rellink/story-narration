@@ -152,6 +152,7 @@ main.overlay .loading {
   background: #fff;
   align-items: center;
   justify-content: center;
+  transform: translateZ(0);
 }
 
 main.overlay .loading h1 {
