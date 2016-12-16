@@ -17,12 +17,12 @@ var Graph = function() {
 
 // github.com/Adebis/NarrativeBackendRPI
 
-Graph.prototype.load = function(url, type) {
+Graph.prototype.load = function(url, type, onDone) {
   console.log(url, type);
   switch(type) {
-    case 'json': return this.loadJSON(url);
-    case 'aimind': return this.loadAIMind(url);
-    default: return this.loadJSON(url);
+    case 'json': return this.loadJSON(url).done(onDone);
+    case 'aimind': return this.loadAIMind(url).done(onDone);
+    default: return this.loadJSON(url).done(onDone);
   }
 }
 
@@ -72,6 +72,12 @@ Graph.prototype.render = function() {
   // this.sigma.startForceAtlas2({
   //   adjustSizes: true
   // });
+}
+
+Graph.prototype.getNodeLabels = function() {
+  return this.data.nodes.map(function(node) {
+    return node.label || node.uri.split('/').pop();
+  });
 }
 
 Graph.prototype.importJSON = function(data) {
@@ -125,17 +131,16 @@ Graph.prototype.importJSON = function(data) {
 }
 
 Graph.prototype.forceLayout = function(onDone) {
-  App.graph.sigma.startForceAtlas2();
+  this.sigma.startForceAtlas2();
   setTimeout(function(){
-    App.graph.sigma.stopForceAtlas2();
+    this.sigma.stopForceAtlas2();
     onDone();
-  }, 3000);
+  }.bind(this), 3000);
 }
 
 /* Helper functions */
 
 function bindEvents(s) {
-
   function activateNodes(toKeep, nodeId) {
     s.graph.nodes().forEach(function(n) {
       if (!toKeep[n.id]) {
