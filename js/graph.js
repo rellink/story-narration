@@ -17,6 +17,15 @@ var Graph = function() {
 
 // github.com/Adebis/NarrativeBackendRPI
 
+Graph.prototype.load = function(url, type, onDone) {
+  console.log(url, type);
+  switch(type) {
+    case 'json': return this.loadJSON(url).done(onDone);
+    case 'aimind': return this.loadAIMind(url).done(onDone);
+    default: return this.loadJSON(url).done(onDone);
+  }
+}
+
 Graph.prototype.loadJSON = function(url) {
   return $.getJSON(url, {}, this.importJSON.bind(this));
 }
@@ -63,6 +72,12 @@ Graph.prototype.render = function() {
   // this.sigma.startForceAtlas2({
   //   adjustSizes: true
   // });
+}
+
+Graph.prototype.getNodeLabels = function() {
+  return this.data.nodes.map(function(node) {
+    return node.label || node.uri.split('/').pop();
+  });
 }
 
 Graph.prototype.importJSON = function(data) {
@@ -116,17 +131,16 @@ Graph.prototype.importJSON = function(data) {
 }
 
 Graph.prototype.forceLayout = function(onDone) {
-  App.graph.sigma.startForceAtlas2();
+  this.sigma.startForceAtlas2();
   setTimeout(function(){
-    App.graph.sigma.stopForceAtlas2();
+    this.sigma.stopForceAtlas2();
     onDone();
-  }, 3000);
+  }.bind(this), 3000);
 }
 
 /* Helper functions */
 
 function bindEvents(s) {
-
   function activateNodes(toKeep, nodeId) {
     s.graph.nodes().forEach(function(n) {
       if (!toKeep[n.id]) {
@@ -142,7 +156,7 @@ function bindEvents(s) {
       }
     });
 
-    s.refresh();
+    refresh();
   }
 
   function deactivateNodes() {
@@ -154,7 +168,7 @@ function bindEvents(s) {
       e.hidden = true;
     });
 
-    s.refresh();
+    refresh();
   }
 
   s.bind('clickNode', function(e) {
@@ -186,8 +200,21 @@ function bindEvents(s) {
   s.bind('outNode', function(e) {
     if(s.activeNode) return;
 
+    // Handle when graph are being rendered
+    if(rendering) return;
+
     deactivateNodes();
   });
+
+  function refresh() {
+    rendering = true;
+    s.refresh();
+  }
+
+  var rendering = false;
+  s.renderers[0].bind('render', function(e) {
+    rendering = false;
+  })
 }
 
 function normalizeWeight(weight) {

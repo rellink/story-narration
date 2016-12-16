@@ -4,21 +4,18 @@ App.start = function() {
 
 };
 
-App.selectTopic = function() {
+App.selectTopic = function(name, url, type) {
   App.hideGetStarted();
   App.showLoading();
 
-  App.graph = new Graph();
-  App.graph
-    //.loadJSON(Config.KNOWLEDGE_API + '/graph?anchors=Google,Microsoft,Samsung,Amazon,IBM,Foxconn,Dell_Technologies,Alphabet_Inc.,HP_Inc.,Sony,Intel')
-    .loadAIMind(Config.TEST_XML)
-    .done(function(){
-      App.graph.render();
-      App.graph.forceLayout(function() {
-        App.hideLoading();
-        App.hideOverlay();
-      });
+  App.story = new Story(name, new Graph());
+  App.story.load(url, type, function() {
+    App.story.graph.render();
+    App.story.graph.forceLayout(function() {
+      App.hideLoading();
+      App.hideOverlay();
     });
+  });
 };
 
 App.hideGetStarted = function() {

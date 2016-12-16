@@ -1,0 +1,1 @@
+var NodeInfo = function() {};
