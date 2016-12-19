@@ -22,11 +22,19 @@ StoryInfo.prototype.render = function() {
       $(this).val('');
     })
     .on('blur', function() {
-      $(this).val(self.selectedNode);
+      $(this).val(self.selectedNode.label);
     })
     .on('awesomplete-selectcomplete', function() {
-      self.selectedNode = $(this).val();
+      self.selectNode($(this).val());
     });
 
   this.$el.fadeIn();
 }
+
+StoryInfo.prototype.selectNode = function(nodeLabel) {
+  var node = this.graph.getNodeFromLabel(nodeLabel);
+  var edges = this.graph.getEdgesFromURI(node.uri);
+  this.selectedNodeInfo = new NodeInfo(node, edges);
+  this.selectedNodeInfo.render();
+  this.selectedNode = node;
+};

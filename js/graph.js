@@ -3,6 +3,15 @@ var Graph = function() {
     nodes: [],
     edges: []
   };
+  this.mode = 'all';
+  this.activeNode = null; // Selected node (to highlight)
+  this.highlight = {
+    disableHover: false,
+    hideNodes: {}, // Show by default
+    showEdges: {}  // Hide by default
+  };
+  this.labelDict = {};
+  this.uriDict = {};
   this.sigma = new sigma({
     renderer: {
       container: document.getElementById('graph'),
@@ -67,17 +76,28 @@ Graph.prototype.loadAIMind = function(url) {
 }
 
 Graph.prototype.render = function() {
-  // Finally, let's ask our sigma instance to refresh:
+  this.updateHighlight();
   this.sigma.refresh();
-  // this.sigma.startForceAtlas2({
-  //   adjustSizes: true
-  // });
 }
 
 Graph.prototype.getNodeLabels = function() {
   return this.data.nodes.map(function(node) {
-    return node.label || node.uri.split('/').pop();
+    return node.label;
   });
+}
+
+Graph.prototype.getEdgesFromURI = function(uri) {
+  return this.data.edges.filter(function(edge) {
+    return edge.s == uri || edge.t == uri;
+  });
+}
+
+Graph.prototype.getNodeFromLabel = function(label) {
+  return this.labelDict[label];
+}
+
+Graph.prototype.getNodeFromUri = function(uri) {
+  return this.uriDict[uri];
 }
 
 Graph.prototype.importJSON = function(data) {
@@ -126,8 +146,17 @@ Graph.prototype.importJSON = function(data) {
     });
   }.bind(this));
 
+  // Populate label dict
+  data.nodes.forEach(function(node) {
+    if(!node.label) {
+      node.label = node.uri.split('/').pop();
+    }
+    this.labelDict[node.label] = node;
+    this.uriDict[node.uri] = node;
+  }.bind(this));
+
   // Bind events
-  bindEvents(this.sigma);
+  this.bindEvents();
 }
 
 Graph.prototype.forceLayout = function(onDone) {
@@ -138,81 +167,90 @@ Graph.prototype.forceLayout = function(onDone) {
   }.bind(this), 3000);
 }
 
-/* Helper functions */
-
-function bindEvents(s) {
-  function activateNodes(toKeep, nodeId) {
-    s.graph.nodes().forEach(function(n) {
-      if (!toKeep[n.id]) {
-        n.hidden = true;
-      }
-    });
-
-    s.graph.edges().forEach(function(e) {
-      if (e.source == nodeId || e.target == nodeId) {
-        e.hidden = false;
-      } else {
-        e.hidden = true;
-      }
-    });
-
-    refresh();
-  }
-
-  function deactivateNodes() {
-    s.graph.nodes().forEach(function(n) {
-      n.hidden = false;
-    });
-
-    s.graph.edges().forEach(function(e) {
-      e.hidden = true;
-    });
-
-    refresh();
-  }
-
-  s.bind('clickNode', function(e) {
-    var nodeId = e.data.node.id,
-        toKeep = s.graph.neighbors(nodeId);
-    toKeep[nodeId] = e.data.node;
-
-    if(s.activeNode != nodeId) {
-      s.activeNode = nodeId;
-      activateNodes(toKeep, nodeId);
+Graph.prototype.updateHighlight = function() {
+  this.sigma.graph.nodes().forEach(function(n) {
+    if (this.highlight.hideNodes[n.id]) {
+      n.hidden = true;
     } else {
-      deactivateNodes();
-      s.activeNode = null;
+      n.hidden = false;
+    }
+  }.bind(this));
+
+  this.sigma.graph.edges().forEach(function(e) {
+    if (this.highlight.showEdges[e.id]) {
+      e.hidden = false;
+    } else {
+      e.hidden = true;
+    }
+  }.bind(this));
+}
+
+Graph.prototype.highlightNodeNighbors = function(nodeId) {
+  var toShowNodes = {},
+      toShowEdges = {};
+
+  this.sigma.graph.edges().forEach(function(e) {
+    if (e.source == nodeId || e.target == nodeId) {
+      toShowEdges[e.id] = true;
+      toShowNodes[e.source] = true;
+      toShowNodes[e.target] = true;
     }
   });
 
-  s.bind('overNode', function(e) {
-    if(s.activeNode) return;
+  this.highlight.showEdges = toShowEdges;
+  this.highlight.hideNodes = this.sigma.graph.nodes().reduce(function(c, n) {
+    if(!toShowNodes[n.id]) c[n.id] = true;
+    return c;
+  }, {});
+}
 
-    var nodeId = e.data.node.id,
-        toKeep = s.graph.neighbors(nodeId);
-    toKeep[nodeId] = e.data.node;
+Graph.prototype.resetHighlight = function() {
+  this.highlight.hideNodes = {};
+  this.highlight.showEdges = {};
+}
 
-    activateNodes(toKeep, nodeId);
-  });
+/* Helper functions */
 
-  // When the stage is clicked, we just color each
-  // node and edge with its original color.
-  s.bind('outNode', function(e) {
-    if(s.activeNode) return;
-
-    // Handle when graph are being rendered
-    if(rendering) return;
-
-    deactivateNodes();
-  });
-
-  function refresh() {
+Graph.prototype.bindEvents = function() {
+  var refresh = function() {
     rendering = true;
-    s.refresh();
-  }
+    this.render();
+  }.bind(this);
+
+  this.sigma.bind('clickNode', function(e) {
+    var nodeId = e.data.node.id;
+
+    if(this.activeNode != nodeId) {
+      this.activeNode = nodeId;
+      this.highlightNodeNighbors(nodeId);
+    } else {
+      this.activeNode = null;
+      this.resetHighlight();
+    }
+
+    refresh();
+  }.bind(this));
+
+  this.sigma.bind('overNode', function(e) {
+    if(this.activeNode) return;
+
+    var nodeId = e.data.node.id;
+    this.highlightNodeNighbors(nodeId);
+
+    refresh();
+  }.bind(this));
+
+  this.sigma.bind('outNode', function(e) {
+    if(this.activeNode) return;
+    if(rendering) return; // Handle when graph are being rendered
+
+    this.resetHighlight();
+
+    refresh();
+  }.bind(this));
 
   var rendering = false;
-  s.renderers[0].bind('render', function(e) {
+  this.sigma.renderers[0].bind('render', function(e) {
     rendering = false;
   })
 }
