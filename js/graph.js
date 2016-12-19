@@ -13,6 +13,8 @@ var Graph = function() {
   this.labelDict = {};
   this.uriDict = {};
   this.sigma = new sigma({
+    doubleClickEnabled: false,
+    doubleClickZoomingRatio: 1,
     renderer: {
       container: document.getElementById('graph'),
       type: 'webgl'
@@ -218,15 +220,20 @@ Graph.prototype.bindEvents = function() {
   }.bind(this);
 
   this.sigma.bind('clickNode', function(e) {
-    var nodeId = e.data.node.id;
+    document.dispatchEvent(new CustomEvent('graph:node-select', { detail: e.data.node.id }));
+  });
 
-    if(this.activeNode != nodeId) {
-      this.activeNode = nodeId;
-      this.highlightNodeNighbors(nodeId);
-    } else {
-      this.activeNode = null;
-      this.resetHighlight();
-    }
+  this.sigma.bind('doubleClickNode', function(e) {
+    var nodeId = e.data.node.id;
+    this.activeNode = nodeId;
+    this.highlightNodeNighbors(nodeId);
+
+    refresh();
+  }.bind(this));
+
+  this.sigma.bind('clickStage', function(e) {
+    this.activeNode = null;
+    this.resetHighlight();
 
     refresh();
   }.bind(this));
