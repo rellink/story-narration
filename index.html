@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="vendors/awesomplete/awesomplete.css">
+  <link rel="stylesheet" href="vendors/scrollbar/jquery.scrollbar.css">
 
   <!-- App -->
   <link rel="stylesheet" href="css/reset.css">
@@ -41,6 +42,10 @@
             <i class="fa fa-play"></i>
             <span>narrate</span>
           </button>
+          <button class="analogy">
+            <i class="fa fa-code-fork"></i>
+            <span>make analogy</span>
+          </button>
         </div>
         <div class="node-search">
           <i class="fa fa-search"></i>
@@ -48,18 +53,31 @@
                  class="node-search-box"
                  placeholder="Find node in graph">
         </div>
+        <div class="node-search analogy">
+          <i class="fa fa-code-fork"></i>
+          <input type="text"
+                 class="node-search-box-analogy"
+                 placeholder="Find node to make analogy with">
+        </div>
         <div class="node-info">
-          <div class="name">
-
+          <div class="header">
+            Description
           </div>
-          <div class="description">
-
+          <div class="description" data-field>
+          </div>
+          <div class="header">
+            <span class="incoming-amount" data-field></span>
+            incoming relationships
           </div>
           <div class="incoming">
-
+            <ul data-field></ul>
+          </div>
+          <div class="header">
+            <span class="outgoing-amount" data-field></span>
+            outgoing relationships
           </div>
           <div class="outgoing">
-
+            <ul data-field></ul>
           </div>
         </div>
         <div class="actions">
@@ -94,7 +112,11 @@
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <script src="vendors/sigma/sigma.min.js"></script>
   <script src="vendors/sigma/sigma.layout.forceAtlas2.min.js"></script>
+  <script src="vendors/sigma/sigma.plugins.animate.js"></script>
+  <script src="vendors/sigma/sigma.renderers.customShapes.shape-library.js"></script>
+  <script src="vendors/sigma/sigma.renderers.customShapes.js"></script>
   <script src="vendors/sigma/sigma.customize.js"></script>
+  <script src="vendors/scrollbar/jquery.scrollbar.min.js"></script>
   <script src="vendors/tinycolor.js"></script>
   <script src="vendors/awesomplete/awesomplete.min.js"></script>
 
@@ -103,6 +125,7 @@
   <script src="js/story-info.js"></script>
   <script src="js/node-info.js"></script>
   <script src="js/graph.js"></script>
+  <script src="js/analogy.js"></script>
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
   <script>
