@@ -13,11 +13,13 @@ var Graph = function() {
   this.labelDict = {};
   this.uriDict = {};
   this.sigma = new sigma({
+    hideEdgesOnMove: true,
     doubleClickEnabled: false,
     doubleClickZoomingRatio: 1,
+    animationsTime: 500,
     renderer: {
       container: document.getElementById('graph'),
-      type: 'webgl'
+      type: 'canvas'
     },
     settings: {
       defaultNodeType: 'fast',
@@ -52,9 +54,14 @@ Graph.prototype.loadAIMind = function(url) {
     var nodes = [], edges = [], checkNode = {};
     // Populate nodes
     Array.from(features).forEach(function(feature) {
+      var description = '';
+      if(feature.getElementsByTagName('speak').length) {
+        description = feature.getElementsByTagName('speak')[0].getAttribute('value');
+      }
       nodes.push({
         uri: feature.getAttribute('id'),
         label: feature.getAttribute('data'),
+        description: description,
         properties: {}
       });
       checkNode[feature.getAttribute('id')] = true;
@@ -211,6 +218,27 @@ Graph.prototype.resetHighlight = function() {
   this.highlight.showEdges = {};
 }
 
+Graph.prototype.panCameraTo = function(nodeId) {
+  var node = this.sigma.graph.nodes(nodeId);
+
+  sigma.misc.animation.camera(
+    this.sigma.camera,
+    {
+      x: node[this.sigma.camera.readPrefix + 'x'],
+      y: node[this.sigma.camera.readPrefix + 'y'],
+      ratio: node[this.sigma.camera.readPrefix + 'size']/10
+    },
+    { duration: this.sigma.settings('animationsTime') }
+  );
+}
+
+Graph.prototype.updateNodeProperty = function(nodeId, prop) {
+  var node = this.sigma.graph.nodes(nodeId);
+  Object.keys(prop).map(function(k) {
+    node[k] = prop[k];
+  });
+}
+
 /* Helper functions */
 
 Graph.prototype.bindEvents = function() {
@@ -220,8 +248,12 @@ Graph.prototype.bindEvents = function() {
   }.bind(this);
 
   this.sigma.bind('clickNode', function(e) {
-    document.dispatchEvent(new CustomEvent('graph:node-select', { detail: e.data.node.id }));
-  });
+    document.dispatchEvent(
+      new CustomEvent('rellink:node-select', {
+        detail: this.uriDict[e.data.node.id]
+      })
+    );
+  }.bind(this));
 
   this.sigma.bind('doubleClickNode', function(e) {
     var nodeId = e.data.node.id;

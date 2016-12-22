@@ -1,7 +1,8 @@
 var App = function() {};
 
 App.start = function() {
-
+  $('.node-info .incoming').scrollbar();
+  $('.node-info .outgoing').scrollbar();
 };
 
 App.selectTopic = function(name, url, type) {
@@ -10,6 +11,9 @@ App.selectTopic = function(name, url, type) {
 
   App.story = new Story(name, new Graph());
   App.story.load(url, type, function() {
+    // Init analogy
+    App.analogy = new Analogy(App.story.graph);
+
     App.story.graph.render();
     App.story.graph.forceLayout(function() {
       App.hideLoading();

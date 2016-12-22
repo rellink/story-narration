@@ -208,6 +208,14 @@ section.info-panel {
   background: rgba(12, 82, 69, 0.7);
 }
 
+.story-info-header button span {
+  display: none;
+}
+
+.story-info-header button:hover span {
+  display: inline-block;
+}
+
 .story-name {
   font-size: 20px;
   font-weight: 700;
@@ -215,10 +223,61 @@ section.info-panel {
 
 .story-info button {
   float: right;
+  margin-left: 5px;
+}
+
+.node-info {
+  margin-top: 10px;
+  display: none;
+}
+
+.node-info .incoming,
+.node-info .outgoing {
+  max-height: 120px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 5px;
+}
+
+.node-info .description {
+  background: rgba(255,255,255,0.75);
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.node-info .description .no-description {
+  color: rgba(12, 82, 69, 0.5);
+}
+
+.node-info .incoming ul,
+.node-info .outgoing ul {
+  margin: 10px;
+}
+
+.node-info .incoming ul > li,
+.node-info .outgoing ul > li {
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.node-info .incoming ul > li:hover,
+.node-info .outgoing ul > li:hover {
+  background: rgba(50,240,170,0.3);
+  border-radius: 3px;
+  padding-left: 3px;
+}
+
+.node-info .header {
+  color: #137e6a;
+  margin: 10px 0 5px 10px;
 }
 
 .node-search {
   position: relative;
+}
+
+.node-search.analogy {
+  display: none;
+  margin-top: 5px;
 }
 
 .node-search > i {
@@ -234,7 +293,8 @@ section.info-panel {
   width: 100%;
 }
 
-.node-search-box {
+.node-search-box,
+.node-search-box-analogy {
   display: block;
   width: 100%;
   border: 0;

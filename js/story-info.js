@@ -1,9 +1,9 @@
 var StoryInfo = function(name, graph) {
   this.name = name;
   this.graph = graph;
-  this.selectedNode = '';
+  this.selectedNode = null;
 
-  document.addEventListener('graph:node-select', function(e) {
+  document.addEventListener('rellink:node-select', function(e) {
     this.selectNode(e.detail);
     this.$el.find('.node-search-box').trigger('blur');
   }.bind(this));
@@ -27,24 +27,34 @@ StoryInfo.prototype.render = function() {
       $(this).val('');
     })
     .on('blur', function() {
-      $(this).val(self.selectedNode.label);
+      $(this).val(self.selectedNode ? self.selectedNode.label : '');
     })
     .on('awesomplete-selectcomplete', function() {
-      self.selectNodeFromLabel($(this).val());
+      var node = self.graph.getNodeFromLabel($(this).val());
+      self.selectNode(node);
+      self.graph.panCameraTo(node.uri);
     });
 
   this.$el.fadeIn();
 }
 
-StoryInfo.prototype.selectNodeFromLabel = function(nodeLabel) {
-  var node = this.graph.getNodeFromLabel(nodeLabel);
-  this.selectNode(node.uri);
-}
-
-StoryInfo.prototype.selectNode = function(nodeUri) {
-  var node = this.graph.getNodeFromUri(nodeUri);
-  var edges = this.graph.getEdgesFromURI(nodeUri);
-  this.selectedNodeInfo = new NodeInfo(node, edges);
+StoryInfo.prototype.selectNode = function(node) {
+  var edges = this.graph.getEdgesFromURI(node.uri);
+  this.selectedNodeInfo = new NodeInfo(node, edges, this.graph);
   this.selectedNodeInfo.render();
+
+  /* Highlight node: render as star */
+  if(this.selectedNode) {
+    this.graph.updateNodeProperty(this.selectedNode.uri, {
+      type: 'cicle' ,
+      borderColor: undefined
+    });
+  }
+  this.graph.updateNodeProperty(node.uri, {
+    type: 'star' ,
+    borderColor: '#777777'
+  });
+  this.graph.render();
+
   this.selectedNode = node;
 };
