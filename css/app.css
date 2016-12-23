@@ -7,6 +7,10 @@ body, html {
   height: 100%;
 }
 
+* {
+  user-select: none;
+}
+
 body {
   font-family: 'Montserrat', sans-serif;
   color: #333;
@@ -226,7 +230,8 @@ section.info-panel {
   margin-left: 5px;
 }
 
-.node-info {
+.node-info,
+.analogy-info {
   margin-top: 10px;
   display: none;
 }
@@ -238,13 +243,15 @@ section.info-panel {
   border-radius: 5px;
 }
 
-.node-info .description {
+.node-info .description,
+.analogy-info .description {
   background: rgba(255,255,255,0.75);
   border-radius: 5px;
   padding: 10px;
 }
 
-.node-info .description .no-description {
+.node-info .description .no-description,
+.analogy-info .description .loading {
   color: rgba(12, 82, 69, 0.5);
 }
 
@@ -266,7 +273,8 @@ section.info-panel {
   padding-left: 3px;
 }
 
-.node-info .header {
+.node-info .header,
+.analogy-info .header {
   color: #137e6a;
   margin: 10px 0 5px 10px;
 }

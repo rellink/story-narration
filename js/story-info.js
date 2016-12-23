@@ -31,7 +31,7 @@ StoryInfo.prototype.render = function() {
     })
     .on('awesomplete-selectcomplete', function() {
       var node = self.graph.getNodeFromLabel($(this).val());
-      self.selectNode(node);
+      document.dispatchEvent(new CustomEvent('rellink:node-select', { detail: node }));
       self.graph.panCameraTo(node.uri);
     });
 

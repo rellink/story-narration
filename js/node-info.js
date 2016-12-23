@@ -10,32 +10,44 @@ NodeInfo.prototype.render = function() {
 
   var $description = this.$el.find('.description'),
       $incoming = this.$el.find('.incoming ul'),
-      $outgoing = this.$el.find('.outgoing ul'),
-      nIncoming = 0,
-      nOutgoing = 0;
+      $outgoing = this.$el.find('.outgoing ul');
 
   var onNodeClick = function(node) {
     document.dispatchEvent(new CustomEvent('rellink:node-select', { detail: node }));
     this.graph.panCameraTo(node.uri);
   }.bind(this);
 
+  var incomings = [],
+      outgoings = [];
+
   this.edges.forEach(function(edge) {
-    if(edge.t == this.node.uri) {
-      nIncoming++;
+    if(edge.t == this.node.uri) incomings.push(edge);
+    else outgoings.push(edge);
+  }.bind(this));
+
+  incomings
+    .sort(function(e1, e2) {
+      return this.graph.getNodeFromUri(e1.s).label < this.graph.getNodeFromUri(e2.s).label ? -1 : 1;
+    }.bind(this))
+    .forEach(function(edge) {
       $incoming.append(
         $('<li></li>')
           .text(this.graph.getNodeFromUri(edge.s).label)
           .click(onNodeClick.bind(this, this.graph.getNodeFromUri(edge.s)))
       );
-    } else {
-      nOutgoing++;
+    }.bind(this));
+
+  outgoings
+    .sort(function(e1, e2) {
+      return this.graph.getNodeFromUri(e1.t).label < this.graph.getNodeFromUri(e2.t).label ? -1 : 1;
+    }.bind(this))
+    .forEach(function(edge) {
       $outgoing.append(
         $('<li></li>')
           .text(this.graph.getNodeFromUri(edge.t).label)
           .click(onNodeClick.bind(this, this.graph.getNodeFromUri(edge.t)))
       );
-    }
-  }.bind(this));
+    }.bind(this));
 
   if(this.node.description) {
     $description.text(this.node.description);
@@ -43,8 +55,8 @@ NodeInfo.prototype.render = function() {
     $description.append($('<span class="no-description">No description for this node</span>'));
   }
 
-  this.$el.find('.incoming-amount').text(nIncoming);
-  this.$el.find('.outgoing-amount').text(nOutgoing);
+  this.$el.find('.incoming-amount').text(incomings.length);
+  this.$el.find('.outgoing-amount').text(outgoings.length);
 
   this.$el.show();
 }

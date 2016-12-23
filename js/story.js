@@ -1,6 +1,4 @@
 var Story = function(name, graph) {
-
-console.log('init story ins');
   this.name = name;
   this.graph = graph;
 };
@@ -16,7 +14,3 @@ Story.prototype.renderStoryInfo = function() {
   this.storyInfo = new StoryInfo(this.name, this.graph);
   this.storyInfo.render();
 };
-
-Story.prototype.renderNodeInfo = function(node_id) {
-
-}
