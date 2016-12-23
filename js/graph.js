@@ -8,22 +8,24 @@ var Graph = function() {
   this.highlight = {
     disableHover: false,
     hideNodes: {}, // Show by default
-    showEdges: {}  // Hide by default
+    showEdges: {}, // Hide by default,
+    edgeColor: {}
   };
   this.labelDict = {};
   this.uriDict = {};
   this.sigma = new sigma({
-    hideEdgesOnMove: true,
-    doubleClickEnabled: false,
-    doubleClickZoomingRatio: 1,
-    animationsTime: 500,
     renderer: {
       container: document.getElementById('graph'),
       type: 'canvas'
     },
     settings: {
       defaultNodeType: 'fast',
-      defaultEdgeType: 'fast'
+      defaultEdgeType: 'fast',
+      hideEdgesOnMove: false,
+      doubleClickEnabled: false,
+      doubleClickZoomingRatio: 1,
+      animationsTime: 500,
+      defaultEdgeColor: '#44A8FF',
     }
   });
 };
@@ -56,7 +58,7 @@ Graph.prototype.loadAIMind = function(url) {
     Array.from(features).forEach(function(feature) {
       var description = '';
       if(feature.getElementsByTagName('speak').length) {
-        description = feature.getElementsByTagName('speak')[0].getAttribute('value');
+        description = feature.getElementsByTagName('speak')[0].innerHTML;
       }
       nodes.push({
         uri: feature.getAttribute('id'),
@@ -87,6 +89,10 @@ Graph.prototype.loadAIMind = function(url) {
 Graph.prototype.render = function() {
   this.updateHighlight();
   this.sigma.refresh();
+}
+
+Graph.prototype.getEdgeId = function(sourceUri, targetUri) {
+  return sourceUri + ' ' + targetUri;
 }
 
 Graph.prototype.getNodeLabels = function() {
@@ -146,7 +152,7 @@ Graph.prototype.importJSON = function(data) {
   // Populate edges
   data.edges.forEach(function(edge){
     this.sigma.graph.addEdge({
-      id: edge.s + ' ' + edge.t,
+      id: this.getEdgeId(edge.s, edge.t),
       source: edge.s,
       target: edge.t,
       label: edge.r,
@@ -188,6 +194,7 @@ Graph.prototype.updateHighlight = function() {
   this.sigma.graph.edges().forEach(function(e) {
     if (this.highlight.showEdges[e.id]) {
       e.hidden = false;
+      e.color = this.highlight.edgeColor[e.id] || this.sigma.settings('defaultEdgeColor');
     } else {
       e.hidden = true;
     }
@@ -211,6 +218,17 @@ Graph.prototype.highlightNodeNighbors = function(nodeId) {
     if(!toShowNodes[n.id]) c[n.id] = true;
     return c;
   }, {});
+}
+
+/* param: an array of { source: sourceUri, target: targetUri }*/
+Graph.prototype.highlightEdges = function(edges) {
+  // Select edges to show
+  var toShowEdges = {};
+  edges.forEach(function(e) {
+    toShowEdges[this.getEdgeId(e.source, e.target)] = true;
+    this.highlight.edgeColor[this.getEdgeId(e.source, e.target)] = e.color;
+  }.bind(this));
+  this.highlight.showEdges = toShowEdges;
 }
 
 Graph.prototype.resetHighlight = function() {
@@ -239,8 +257,6 @@ Graph.prototype.updateNodeProperty = function(nodeId, prop) {
   });
 }
 
-/* Helper functions */
-
 Graph.prototype.bindEvents = function() {
   var refresh = function() {
     rendering = true;
@@ -254,45 +270,47 @@ Graph.prototype.bindEvents = function() {
       })
     );
   }.bind(this));
-
-  this.sigma.bind('doubleClickNode', function(e) {
-    var nodeId = e.data.node.id;
-    this.activeNode = nodeId;
-    this.highlightNodeNighbors(nodeId);
-
-    refresh();
-  }.bind(this));
-
-  this.sigma.bind('clickStage', function(e) {
-    this.activeNode = null;
-    this.resetHighlight();
-
-    refresh();
-  }.bind(this));
-
-  this.sigma.bind('overNode', function(e) {
-    if(this.activeNode) return;
-
-    var nodeId = e.data.node.id;
-    this.highlightNodeNighbors(nodeId);
-
-    refresh();
-  }.bind(this));
-
-  this.sigma.bind('outNode', function(e) {
-    if(this.activeNode) return;
-    if(rendering) return; // Handle when graph are being rendered
-
-    this.resetHighlight();
-
-    refresh();
-  }.bind(this));
+  //
+  // this.sigma.bind('doubleClickNode', function(e) {
+  //   var nodeId = e.data.node.id;
+  //   this.activeNode = nodeId;
+  //   this.highlightNodeNighbors(nodeId);
+  //
+  //   refresh();
+  // }.bind(this));
+  //
+  // this.sigma.bind('clickStage', function(e) {
+  //   this.activeNode = null;
+  //   this.resetHighlight();
+  //
+  //   refresh();
+  // }.bind(this));
+  //
+  // this.sigma.bind('overNode', function(e) {
+  //   if(this.activeNode) return;
+  //
+  //   var nodeId = e.data.node.id;
+  //   this.highlightNodeNighbors(nodeId);
+  //
+  //   refresh();
+  // }.bind(this));
+  //
+  // this.sigma.bind('outNode', function(e) {
+  //   if(this.activeNode) return;
+  //   if(rendering) return; // Handle when graph are being rendered
+  //
+  //   this.resetHighlight();
+  //
+  //   refresh();
+  // }.bind(this));
 
   var rendering = false;
   this.sigma.renderers[0].bind('render', function(e) {
     rendering = false;
   })
 }
+
+/* Helper functions */
 
 function normalizeWeight(weight) {
   return 1 + Math.log(weight);
