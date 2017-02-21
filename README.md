@@ -6,7 +6,7 @@ The project is a spin-off of [Knowledge Explorer][], a desktop app for building 
 ![Screenshot](https://cloud.githubusercontent.com/assets/891585/23149568/c56b31a8-f7ba-11e6-8154-11f36813bc63.PNG)
 
 ## How can you try it?
-Just go to [https://rellink.mybluemix.net][], hosted by IBM Bluemix.
+Just go to **[https://rellink.mybluemix.net][]**, hosted by IBM Bluemix.
 
 ## Features
 + Visualize knowledge graph, with concepts colorized based on their degrees.
