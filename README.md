@@ -3,6 +3,8 @@ Developed at [RPI Cognitive Science Department][], a web application for explori
 
 The project is a spin-off of [Knowledge Explorer][], a desktop app for building knowledge bases. The app supports both AIMind XML format and JSON.
 
+![Screenshot](https://cloud.githubusercontent.com/assets/891585/23149568/c56b31a8-f7ba-11e6-8154-11f36813bc63.PNG)
+
 ## Access via Bluemix
 [https://rellink.mybluemix.net][]
 
