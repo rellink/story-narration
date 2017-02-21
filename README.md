@@ -36,11 +36,15 @@ Just go to [https://rellink.mybluemix.net][], hosted by IBM Bluemix.
 + [Kasi Chonpimai][] - Developer
 + [Dr. Mei Si][] - Supervisor
 
+## License
+[MIT License][]
+
 [Knowledge Explorer]: https://github.com/smiled0g/knowledge-explorer
 [RPI Cognitive Science Department]: http://www.cogsci.rpi.edu/
 [https://rellink.mybluemix.net]: https://rellink.mybluemix.net
 [Analogy]: https://github.com/rellink/analogy
 [Install Node.js]: https://nodejs.org/en/download/
+[MIT License]: https://github.com/rellink/story-narration/blob/master/LICENSE
 
 [Craig Carlson]: https://github.com/carlsc2
 [Kasi Chonpimai]: https://github.com/smiled0g
