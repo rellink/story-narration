@@ -46,44 +46,7 @@ Graph.prototype.loadJSON = function(url) {
 }
 
 Graph.prototype.loadAIMind = function(url) {
-  return $.get(url, {}, function(data) {
-    // Turn data into JSON
-    var json = {};
-
-    var root = data.children[0].getElementsByTagName('Root')[0].getAttribute('id');
-    var features = data.children[0].getElementsByTagName('Feature');
-
-    var nodes = [], edges = [], checkNode = {};
-    // Populate nodes
-    Array.from(features).forEach(function(feature) {
-      var description = '';
-      if(feature.getElementsByTagName('speak').length) {
-        description = feature.getElementsByTagName('speak')[0].innerHTML;
-      }
-      nodes.push({
-        uri: feature.getAttribute('id'),
-        label: feature.getAttribute('data'),
-        description: description,
-        properties: {}
-      });
-      checkNode[feature.getAttribute('id')] = true;
-    });
-    // Populate edges
-    Array.from(features).forEach(function(feature) {
-      Array.from(feature.getElementsByTagName('neighbor')).forEach(function(neighbor) {
-        if(checkNode[feature.getAttribute('id')] &&
-           checkNode[neighbor.getAttribute('dest')] ) {
-          edges.push({
-            s: feature.getAttribute('id'),
-            t: neighbor.getAttribute('dest'),
-            r: neighbor.getAttribute('relationship')
-          });
-        }
-      });
-    });
-
-    this.importJSON({ nodes:nodes, edges:edges });
-  }.bind(this));
+  return $.get(url, {}, this.importAIMind.bind(this));
 }
 
 Graph.prototype.render = function() {
@@ -172,6 +135,45 @@ Graph.prototype.importJSON = function(data) {
 
   // Bind events
   this.bindEvents();
+}
+
+Graph.prototype.importAIMind = function(data) {
+  // Turn data into JSON
+  var json = {};
+
+  var root = data.children[0].getElementsByTagName('Root')[0].getAttribute('id');
+  var features = data.children[0].getElementsByTagName('Feature');
+
+  var nodes = [], edges = [], checkNode = {};
+  // Populate nodes
+  Array.from(features).forEach(function(feature) {
+    var description = '';
+    if(feature.getElementsByTagName('speak').length) {
+      description = feature.getElementsByTagName('speak')[0].innerHTML;
+    }
+    nodes.push({
+      uri: feature.getAttribute('id'),
+      label: feature.getAttribute('data'),
+      description: description,
+      properties: {}
+    });
+    checkNode[feature.getAttribute('id')] = true;
+  });
+  // Populate edges
+  Array.from(features).forEach(function(feature) {
+    Array.from(feature.getElementsByTagName('neighbor')).forEach(function(neighbor) {
+      if(checkNode[feature.getAttribute('id')] &&
+         checkNode[neighbor.getAttribute('dest')] ) {
+        edges.push({
+          s: feature.getAttribute('id'),
+          t: neighbor.getAttribute('dest'),
+          r: neighbor.getAttribute('relationship')
+        });
+      }
+    });
+  });
+
+  this.importJSON({ nodes:nodes, edges:edges });
 }
 
 Graph.prototype.forceLayout = function(onDone) {
