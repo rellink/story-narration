@@ -106,9 +106,18 @@
           Top Tech Companies
         </div>
         <div style="height: 30px;"></div>
-        <div class="button">
+        <div class="button"
+             onclick="alert('Coming soon ...')">
           Custom Topic <i class="fa fa-search"></i>
         </div>
+        <div class="button"
+             onclick="$('#aimind-uploader-file').trigger('click');">
+          Custom AIMind XML <i class="fa fa-cloud-upload"></i>
+        </div>
+        <input id="aimind-uploader-file"
+               type="file"
+               style="height: 0; width: 0px; overflow: hidden;"
+               onchange="App.onUploadCustomTopic()"/>
       </div>
     </section>
     <section class="loading">

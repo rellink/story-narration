@@ -22,6 +22,10 @@ App.selectTopic = function(name, url, type) {
   });
 };
 
+App.onUploadCustomTopic = function() {
+  console.log('uploaded');
+}
+
 App.hideGetStarted = function() {
   $('main.overlay .get-started').hide();
 }
