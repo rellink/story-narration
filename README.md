@@ -33,7 +33,7 @@ Just go to **[https://rellink.mybluemix.net][]**, hosted by IBM Bluemix.
 [![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/rellink/story-narration) <- Simply hit the button
 
 ## Contributors
-+ [Kasi Chonpimai][] - Developer
++ [Paul Chonpimai][] - Developer
 + [Dr. Mei Si][] - Supervisor
 
 ## License
