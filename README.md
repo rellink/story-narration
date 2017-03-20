@@ -47,5 +47,5 @@ Just go to **[https://rellink.mybluemix.net][]**, hosted by IBM Bluemix.
 [MIT License]: https://github.com/rellink/story-narration/blob/master/LICENSE
 
 [Craig Carlson]: https://github.com/carlsc2
-[Kasi Chonpimai]: https://github.com/smiled0g
+[Paul Chonpimai]: https://github.com/smiled0g
 [Dr. Mei Si]: http://si.hass.rpi.edu/
